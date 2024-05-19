@@ -9,19 +9,19 @@ type Props = {
 const Layout = ({ children, title = "This is the default title" }: Props) => (
   <div className="relative min-h-screen flex flex-col justify-center items-center bg-hero bg-cover">
     <Head>
-      <title>{title} | Themeptation</title>
+      <title>{title} | Benty LTD</title>
       <meta charSet="utf-8" />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       <meta
         name="description"
-        content="Slioth - is a One Page Saas Lading Page build with Tailwind CSS and NextJs created by themeptation"
+        content="Top UK Finds, Delivered Fast!"
       />
-      <meta property="og:title" content={`${title} | Themeptation`} />
+      <meta property="og:title" content={`${title} | Benty LTD`} />
       <meta
         property="og:description"
-        content="Slioth - is a One Page Saas Lading Page build with Tailwind CSS and NextJs created by themeptation"
+        content="Benty LTD - "
       />
-      <meta property="og:url" content="https://slioth.themepttation.net/" />
+      <meta property="og:url" content="https://benty.org.uk" />
       <meta property="og:type" content="website" />
     </Head>
     {children}
