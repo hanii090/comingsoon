@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const [showIdeaForm, setShowIdeaForm] = useState(false)
 
   const handleGeneratePlan = async () => {
-    if (!businessIdea.trim()) {
+    if (!businessIdea.trim() || !user) {
       return
     }
 
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             Welcome back, <span className="gradient-text">Founder</span>!
           </h1>
           <p className="text-textSecondary">
-            Ready to build something amazing? Let's turn your ideas into reality.
+            Ready to build something amazing? Let&apos;s turn your ideas into reality.
           </p>
         </motion.div>
 
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                     <Sparkles className="w-16 h-16 text-primary-purple mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Ready to Get Started?</h3>
                     <p className="text-textSecondary mb-6">
-                      Tell us about your business idea and we'll generate a complete plan
+                      Tell us about your business idea and we&apos;ll generate a complete plan
                     </p>
                     <Button 
                       size="lg" 
@@ -288,7 +288,11 @@ export default function DashboardPage() {
                                 <Calendar className="w-4 h-4" />
                                 {formatDate(plan.created_at)}
                               </div>
-                              <p className="text-sm text-textSecondary line-clamp-2">
+                              <p className="text-sm text-textSecondary overflow-hidden" style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical'
+                              }}>
                                 {plan.sections.executive_summary}
                               </p>
                             </div>

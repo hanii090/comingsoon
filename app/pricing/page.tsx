@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Check, Star, Zap } from 'lucide-react'
@@ -64,7 +64,7 @@ export default function PricingPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID,
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || 'price_default',
           successUrl: `${window.location.origin}/success`,
           cancelUrl: `${window.location.origin}/pricing`,
         }),
@@ -98,7 +98,7 @@ export default function PricingPage() {
                 <span className="gradient-text">Plan</span>
               </h1>
               <p className="text-xl text-textSecondary">
-                Start for free and upgrade when you're ready to scale your startup dreams into reality.
+                Start for free and upgrade when you&apos;re ready to scale your startup dreams into reality.
               </p>
             </motion.div>
 

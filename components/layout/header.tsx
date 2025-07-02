@@ -4,8 +4,6 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-
 interface HeaderProps {
   user?: any
   onSignOut?: () => void

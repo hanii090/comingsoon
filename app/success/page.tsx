@@ -63,7 +63,7 @@ export default function SuccessPage() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="space-y-6"
               >
-                <h3 className="text-xl font-semibold text-text">What's unlocked for you:</h3>
+                <h3 className="text-xl font-semibold text-text">What&apos;s unlocked for you:</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
@@ -136,7 +136,7 @@ export default function SuccessPage() {
             className="mt-8 text-center"
           >
             <p className="text-textSecondary mb-4">
-              Questions about your subscription? We're here to help!
+              Questions about your subscription? We&apos;re here to help!
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link 

@@ -4,11 +4,11 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: theme('colors.primary.purple/20');
   }
   
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-text;
   }
 }
 

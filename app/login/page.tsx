@@ -21,6 +21,12 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
+    if (!supabase) {
+      toast.error('Authentication service is not available')
+      setIsLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -41,6 +47,11 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = async () => {
+    if (!supabase) {
+      toast.error('Authentication service is not available')
+      return
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -204,7 +215,7 @@ export default function LoginPage() {
 
             {/* Sign Up Link */}
             <div className="text-center">
-              <span className="text-textSecondary">Don't have an account? </span>
+              <span className="text-textSecondary">Don&apos;t have an account? </span>
               <Link 
                 href="/signup" 
                 className="text-primary-purple hover:text-primary-magenta transition-colors font-medium"
