@@ -14,9 +14,7 @@ import {
   Search, 
   Download, 
   Zap,
-  Star,
-  Users,
-  CheckCircle
+  Star
 } from 'lucide-react'
 
 export default function HomePage() {

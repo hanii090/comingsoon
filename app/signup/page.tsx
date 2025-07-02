@@ -42,6 +42,11 @@ export default function SignUpPage() {
       return
     }
 
+    if (!supabase) {
+      toast.error('Authentication service is not available')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -69,6 +74,11 @@ export default function SignUpPage() {
   }
 
   const handleGoogleSignUp = async () => {
+    if (!supabase) {
+      toast.error('Authentication service is not available')
+      return
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

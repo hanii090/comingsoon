@@ -2,12 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 import { supabase } from '@/lib/supabase'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI only if API key is available
+const openai = process.env.OPENAI_API_KEY 
+  ? new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  : null
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if services are available
+    if (!supabase || !openai) {
+      return NextResponse.json(
+        { error: 'Service configuration error' },
+        { status: 500 }
+      )
+    }
+
     const { businessIdea, userId } = await request.json()
 
     if (!businessIdea || !userId) {
