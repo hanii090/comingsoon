@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #16213E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8B5CF6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}
+
+/* Glass morphism utility classes */
+@layer components {
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-card/20 backdrop-blur-md border border-white/10;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-main text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105 hover:shadow-glow-md;
+  }
+  
+  .btn-secondary {
+    @apply glass-dark text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105;
+  }
+  
+  .card-glass {
+    @apply glass-dark rounded-xl p-6 shadow-glass;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-main bg-clip-text text-transparent;
+  }
+  
+  .animate-glow {
+    @apply animate-pulse-glow;
+  }
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-text min-h-screen;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin;
+}

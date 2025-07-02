@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /pricing
+Allow: /login
+Allow: /signup
+
+Disallow: /dashboard*
+Disallow: /plan/*
+Disallow: /api/*
+Disallow: /success*
+
+Sitemap: https://foundify.com/sitemap.xml
