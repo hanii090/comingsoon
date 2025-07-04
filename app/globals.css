@@ -4,11 +4,17 @@
 
 @layer base {
   * {
-    border-color: theme('colors.primary.purple/20');
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+  
+  html {
+    color-scheme: dark;
   }
   
   body {
-    @apply bg-background text-text;
+    background-color: #0F0F23;
+    color: #FFFFFF;
+    font-family: Inter, sans-serif;
   }
 }
 
@@ -28,7 +34,16 @@
   
   /* Gradient text utility */
   .gradient-text {
-    @apply bg-gradient-primary bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* Gradient background utility */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
   }
   
   /* Glow effects */
@@ -46,14 +61,15 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-card;
+    background-color: #16213E;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-primary-purple rounded-full;
+    background-color: #8B5CF6;
+    border-radius: 9999px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-magenta;
+    background-color: #EC4899;
   }
 }
