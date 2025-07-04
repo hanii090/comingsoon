@@ -1,326 +1,263 @@
-# 🚀 Foundify - AI-Powered Business Planning Assistant
+# 🚀 Foundify - AI-Powered Business Plan Generator
 
-Foundify is a comprehensive, production-ready SaaS platform that helps startup founders turn their ideas into investor-ready business plans using AI. Built with Next.js, Supabase, and OpenAI.
-
-![Foundify Logo](https://via.placeholder.com/150x50/8B5CF6/FFFFFF?text=Foundify)
+**Foundify** is a complete, production-ready SaaS platform that helps founders transform startup ideas into investor-ready business plans using AI. Built with Next.js, Supabase, OpenAI, and Stripe.
 
 ## ✨ Features
 
-### 🤖 AI-Powered Business Planning
-- **Comprehensive Business Plans**: Generate complete business plans with AI using OpenAI GPT-3.5
-- **Market Research**: AI-driven market analysis and competitive insights
-- **Brand Identity Creation**: Generate compelling brand names, taglines, and values
-- **Pitch Deck Generation**: Create investor-ready presentations
-- **Financial Projections**: AI-generated revenue models and growth projections
-
-### 💎 Premium Features (Pro Plan)
-- Unlimited business plan generation
-- Advanced AI insights and analysis
-- Premium templates and customization
-- Priority support and assistance
-- Export to multiple formats (PDF, Notion)
-- Team collaboration (coming soon)
-
-### 🔒 Authentication & Security
-- Secure authentication with Supabase Auth
-- Row-level security (RLS) for data protection
-- Google OAuth integration
-- Email verification and password reset
-
-### 💳 Subscription Management
-- Stripe integration for payments
-- Free and Pro tier management
-- Automatic billing and invoicing
-- Secure payment processing
-
-### 🎨 Modern UI/UX
-- Dark glassmorphism design system
-- Fully responsive design
-- Smooth animations with Framer Motion
-- Custom gradient themes
-- Beautiful loading states and transitions
+- 🤖 **AI Business Plan Generation** - Comprehensive plans with GPT-3.5
+- 🎨 **Brand Identity Kits** - Automated brand guidelines and tone
+- 📊 **Pitch Deck Builder** - Investor-ready presentations
+- 🔍 **Market Research & Analysis** - SWOT, TAM, competitor analysis
+- � **Stripe Payments** - Free & Pro tiers with subscription management
+- 📧 **Email Onboarding** - Welcome emails via Resend
+- 📱 **Mobile-First Design** - Glassmorphism UI with dark theme
+- 🔒 **Secure Authentication** - Supabase Auth with RLS
+- 📄 **PDF Export** - Professional document generation
+- 🌐 **SEO Optimized** - Dynamic meta tags and sitemap
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Next.js 14** with App Router
-- **TypeScript** for type safety
-- **Tailwind CSS** for styling
-- **Framer Motion** for animations
-- **Lucide React** for icons
-- **React Hot Toast** for notifications
-
-### Backend & Database
-- **Supabase** for database and authentication
-- **PostgreSQL** with Row-Level Security
-- **OpenAI API** for AI generation
-- **Stripe** for payment processing
-
-### Deployment
-- **Vercel** for hosting
-- **Supabase** for database hosting
-- Environment variable management
+- **Frontend**: Next.js 14 (App Router), TypeScript, TailwindCSS
+- **Backend**: Supabase (PostgreSQL + Auth)
+- **AI**: OpenAI GPT-3.5 Turbo
+- **Payments**: Stripe Subscriptions
+- **Email**: Resend
+- **Animation**: Framer Motion
+- **UI**: Custom components with glassmorphism
+- **Deployment**: Vercel
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Supabase account
 - OpenAI API key
 - Stripe account
+- Resend account
 - Vercel account (for deployment)
 
 ### 1. Clone and Install
 
 ```bash
-git clone <repository-url>
+git clone <your-repo-url>
 cd foundify
 npm install
 ```
 
 ### 2. Environment Setup
 
-Copy `.env.example` to `.env.local` and fill in your credentials:
-
-```bash
-cp .env.example .env.local
-```
+Create `.env.local` file:
 
 ```env
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # OpenAI
-OPENAI_API_KEY=your-openai-api-key
+OPENAI_API_KEY=your_openai_api_key
 
 # Stripe
-STRIPE_SECRET_KEY=your-stripe-secret-key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
-STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-# App
+# Resend
+RESEND_API_KEY=your_resend_api_key
+
+# App URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### 3. Database Setup
 
-Run the SQL commands in `supabase-schema.sql` in your Supabase SQL editor:
+1. Create a new Supabase project
+2. Run the SQL schema in the Supabase SQL editor:
 
 ```sql
--- Creates all necessary tables with RLS policies
--- Users, plans, brands, pitch_decks, research tables
--- Automatic user creation triggers
--- Updated timestamp triggers
+-- Copy contents from supabase-schema.sql
 ```
 
-### 4. Development Server
+3. Enable authentication providers in Supabase Auth settings
+
+### 4. API Keys Setup
+
+#### OpenAI
+1. Go to [OpenAI Platform](https://platform.openai.com/)
+2. Create API key
+3. Add to `OPENAI_API_KEY`
+
+#### Stripe
+1. Create [Stripe account](https://stripe.com/)
+2. Get API keys from dashboard
+3. Set up webhook endpoint: `your-domain.com/api/stripe-webhook`
+4. Add webhook events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`
+
+#### Resend
+1. Create [Resend account](https://resend.com/)
+2. Get API key
+3. Verify your domain for production emails
+
+### 5. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the application.
+Visit `http://localhost:3000`
 
-## 📊 Database Schema
+## 🏗️ Project Structure
 
-### Core Tables
-
-```sql
-users (
-  id UUID PRIMARY KEY,
-  email TEXT NOT NULL,
-  isPro BOOLEAN DEFAULT FALSE,
-  stripe_id TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
-)
-
-plans (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  title TEXT NOT NULL,
-  sections JSONB NOT NULL,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
-)
-
-brands (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  business_name TEXT NOT NULL,
-  data JSONB NOT NULL,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
-)
 ```
-
-### Security
-- Row-Level Security (RLS) enabled on all tables
-- Users can only access their own data
-- Secure API routes with authentication checks
-
-## 🔧 API Routes
-
-### `/api/generate-plan`
-- **Method**: POST
-- **Purpose**: Generate business plans using OpenAI
-- **Body**: `{ businessIdea: string, userId: string }`
-- **Response**: Generated plan data
-
-### `/api/create-checkout-session`
-- **Method**: POST
-- **Purpose**: Create Stripe checkout sessions
-- **Body**: `{ priceId: string, successUrl: string, cancelUrl: string }`
-- **Response**: Checkout session URL
+foundify/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/                # API routes
+│   │   │   ├── generate-plan/  # Business plan generation
+│   │   │   ├── competitor-analysis/ # AI competitor analysis
+│   │   │   ├── create-checkout-session/ # Stripe checkout
+│   │   │   ├── stripe-webhook/ # Payment webhooks
+│   │   │   └── send-welcome/   # Email notifications
+│   │   ├── dashboard/          # User dashboard
+│   │   ├── pricing/            # Pricing page
+│   │   └── page.tsx            # Homepage
+│   ├── components/             # React components
+│   │   ├── ui/                 # Base UI components
+│   │   ├── hero.tsx            # Landing hero
+│   │   ├── features.tsx        # Feature showcase
+│   │   ├── pricing.tsx         # Pricing section
+│   │   └── footer.tsx          # Site footer
+│   └── lib/                    # Utilities
+│       ├── supabase.ts         # Database client
+│       └── utils.ts            # Helper functions
+├── supabase-schema.sql         # Database schema
+└── README.md
+```
 
 ## 🎨 Design System
 
-### Color Palette
+### Colors
+- **Primary**: `#8B5CF6` (Purple)
+- **Accent**: `#EC4899` (Pink)
+- **Background**: `#0F0F23` (Dark Navy)
+- **Card**: `#16213E` (Dark Blue)
+- **Text**: `#FFFFFF` (White)
+- **Text Secondary**: `#9CA3AF` (Gray)
+
+### Glassmorphism
 ```css
---primary-purple: #8B5CF6
---primary-magenta: #EC4899
---background: #0F0F23
---card: #16213E
---text: #FFFFFF
---text-secondary: #9CA3AF
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
 ```
 
-### Components
-- **Glassmorphism Cards**: Translucent cards with blur effects
-- **Gradient Buttons**: Primary and secondary button variants
-- **Animated Icons**: Smooth hover and loading animations
-- **Responsive Layout**: Mobile-first design approach
+## 🔐 Security Features
 
-## 📱 Pages Structure
+- **Row Level Security (RLS)** - Database access control
+- **Authentication** - Supabase Auth with JWT
+- **API Protection** - Server-side validation
+- **Stripe Webhooks** - Secure payment processing
+- **Environment Variables** - Sensitive data protection
 
-```
-app/
-├── page.tsx                 # Home page with hero, features, CTA
-├── pricing/page.tsx         # Pricing plans with Stripe integration
-├── dashboard/page.tsx       # Protected dashboard with AI generation
-├── login/page.tsx          # Authentication with Supabase
-├── signup/page.tsx         # User registration
-├── success/page.tsx        # Post-payment success page
-└── api/
-    ├── generate-plan/route.ts
-    └── create-checkout-session/route.ts
-```
+## � Pricing Strategy
 
-## 🔒 Authentication Flow
+### Free Tier
+- 1 Business Plan
+- Basic Branding Kit
+- Market Research Overview
+- Community Support
 
-1. **Sign Up**: Create account with email/password or Google OAuth
-2. **Email Verification**: Supabase sends verification email
-3. **Login**: Authenticate and create session
-4. **Dashboard Access**: Protected routes check authentication
-5. **Profile Management**: Update user data and billing
+### Pro Tier ($29/month)
+- Unlimited Business Plans
+- AI Competitor Analysis
+- PDF & Notion Export
+- Pitch Deck Generator
+- Priority Support
 
-## 💳 Subscription Flow
+## � Email Templates
 
-1. **Free Plan**: Default plan with limited features
-2. **Upgrade**: Stripe checkout session creation
-3. **Payment**: Secure payment processing
-4. **Activation**: Webhook updates user to Pro status
-5. **Access**: Unlock premium features
+Automated emails include:
+- Welcome onboarding for new users
+- Pro upgrade congratulations
+- Feature introduction and tips
+- Responsive HTML design matching brand
 
-## 🌐 Deployment
+## 🚀 Deployment
 
 ### Vercel Deployment
 
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+1. Connect GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push
+
+### Environment Variables for Production
+
+Update `NEXT_PUBLIC_APP_URL` to your production domain and ensure all API keys are production-ready.
+
+### Stripe Webhook Setup
+
+1. Add webhook endpoint in Stripe dashboard
+2. Point to: `https://your-domain.com/api/stripe-webhook`
+3. Add webhook secret to environment variables
+
+## 🔧 Development
+
+### Adding New Features
+
+1. **API Routes**: Add to `src/app/api/`
+2. **Components**: Add to `src/components/`
+3. **Database**: Update schema and types
+4. **Styling**: Use Tailwind classes with glassmorphism utilities
+
+### Database Migrations
+
+Run SQL migrations in Supabase dashboard or use CLI:
 
 ```bash
-# Build command
-npm run build
-
-# Install command
-npm install
+supabase db push
 ```
 
-### Environment Variables in Production
-Ensure all environment variables are set in your deployment platform:
-- Supabase credentials
-- OpenAI API key
-- Stripe keys
-- App URL
+## � Analytics & Monitoring
 
-## 🔐 Security Best Practices
-
-### Implemented Security
-- **RLS Policies**: Database-level security
-- **API Route Protection**: Authentication checks
-- **Environment Variables**: Sensitive data protection
-- **Input Validation**: Sanitized user inputs
-- **Rate Limiting**: API abuse prevention (recommended)
-
-### Recommendations
-- Set up Stripe webhooks for production
-- Implement rate limiting on API routes
-- Add CSRF protection
-- Monitor API usage and costs
-- Regular security audits
-
-## 🚧 Future Enhancements
-
-### Planned Features
-- **Team Collaboration**: Multi-user workspaces
-- **Advanced Templates**: Industry-specific templates
-- **PDF Generation**: Server-side PDF export
-- **Notion Integration**: Real-time sync
-- **Analytics Dashboard**: Usage metrics
-- **Mobile App**: React Native companion
-
-### Technical Improvements
-- Server-side rendering optimization
-- Advanced caching strategies
-- Real-time collaboration features
-- Enhanced AI prompts and responses
-- Multi-language support
-
-## 📞 Support
-
-### Getting Help
-- **Documentation**: Check this README and inline comments
-- **Issues**: Create GitHub issues for bugs
-- **Support**: Contact support for subscription issues
-- **Community**: Join our Discord for discussions
-
-### Troubleshooting
-
-**Build Issues**:
-```bash
-npm run lint
-npm run type-check
-```
-
-**Database Issues**:
-- Check Supabase connection
-- Verify RLS policies
-- Review SQL schema
-
-**API Issues**:
-- Verify environment variables
-- Check API key limits
-- Review request/response formats
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Consider adding:
+- **Vercel Analytics** - Performance monitoring
+- **Sentry** - Error tracking
+- **PostHog** - User analytics
+- **Stripe Dashboard** - Payment analytics
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create feature branch
+3. Make changes with tests
+4. Submit pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🆘 Support
+
+- **Documentation**: Check this README
+- **Issues**: Create GitHub issue
+- **Email**: hello@foundify.com
+
+## 🎯 Roadmap
+
+- [ ] Notion integration for plan export
+- [ ] Advanced financial modeling
+- [ ] Team collaboration features
+- [ ] API for third-party integrations
+- [ ] Mobile app development
 
 ---
 
-**Built with ❤️ for startup founders worldwide**
+**Built with ❤️ for founders**
 
-*Transform your startup ideas into reality with AI-powered business planning.*
+Transform your startup idea into an investor-ready business plan with the power of AI.
+
+[Get Started](https://foundify.com) | [Documentation](https://docs.foundify.com) | [Support](mailto:hello@foundify.com)
 
