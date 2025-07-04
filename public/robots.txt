@@ -1,0 +1,15 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+
+# Host
+Host: https://foundify.app
+
+# Sitemaps
+Sitemap: https://foundify.app/sitemap.xml
