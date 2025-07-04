@@ -2,21 +2,26 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: "#8B5CF6",
-        accent: "#EC4899",
-        dark: "#0F0F23",
+        background: "#0F0F23",
+        foreground: "#FFFFFF", 
         card: "#16213E",
         text: "#FFFFFF",
         textSecondary: "#9CA3AF",
+        primary: {
+          purple: "#8B5CF6",
+          magenta: "#EC4899",
+        },
+        "primary-purple": "#8B5CF6",
+        "primary-magenta": "#EC4899",
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',

@@ -77,20 +77,20 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${inter.className} min-h-screen antialiased`} suppressHydrationWarning>
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
-              background: 'var(--card)',
-              color: 'var(--text)',
+              background: '#16213E',
+              color: '#FFFFFF',
               border: '1px solid rgba(139, 92, 246, 0.2)',
             },
             success: {
