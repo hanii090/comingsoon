@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
-import { supabase } from '@/lib/supabase'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { Database } from '@/lib/types/database'
 
 // Initialize OpenAI only if API key is available
 const openai = process.env.OPENAI_API_KEY 
@@ -12,9 +14,9 @@ const openai = process.env.OPENAI_API_KEY
 export async function POST(request: NextRequest) {
   try {
     // Check if services are available
-    if (!supabase || !openai) {
+    if (!openai) {
       return NextResponse.json(
-        { error: 'Service configuration error' },
+        { error: 'OpenAI service is not configured' },
         { status: 500 }
       )
     }
@@ -26,6 +28,43 @@ export async function POST(request: NextRequest) {
         { error: 'Business idea and user ID are required' },
         { status: 400 }
       )
+    }
+
+    const supabase = createServerComponentClient<Database>({ cookies })
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user || user.id !== userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Check user's Pro status and plan limits
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_pro')
+      .eq('id', userId)
+      .single()
+
+    if (!profile?.is_pro) {
+      // Check if free user has already created a plan this month
+      const { data: existingPlans, error: plansError } = await supabase
+        .from('plans')
+        .select('id')
+        .eq('user_id', userId)
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+
+      if (plansError) {
+        console.error('Error checking existing plans:', plansError)
+      } else if (existingPlans && existingPlans.length >= 1) {
+        return NextResponse.json(
+          { error: 'Free users can create 1 plan per month. Upgrade to Pro for unlimited plans!' },
+          { status: 402 }
+        )
+      }
     }
 
     // Generate business plan using OpenAI
@@ -58,7 +97,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: 'You are an expert business consultant who creates detailed, actionable business plans for startups.'
+          content: 'You are an expert business consultant who creates detailed, actionable business plans for startups. Always respond with valid JSON.'
         },
         {
           role: 'user',
@@ -87,17 +126,19 @@ export async function POST(request: NextRequest) {
       planData = {
         title: 'Generated Business Plan',
         executive_summary: aiResponse.slice(0, 500) + '...',
+        business_description: 'AI generated comprehensive business plan',
         full_content: aiResponse
       }
     }
 
-    // Save to Supabase
+    // Save to Supabase using correct column name
     const { data, error } = await supabase
       .from('plans')
       .insert({
         user_id: userId,
         title: planData.title || 'Generated Business Plan',
-        sections: planData,
+        content: planData,
+        is_public: false
       })
       .select()
 
@@ -107,6 +148,30 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to save business plan' },
         { status: 500 }
       )
+    }
+
+    // Send welcome email for first-time users
+    try {
+      const { data: userPlans } = await supabase
+        .from('plans')
+        .select('id')
+        .eq('user_id', userId)
+
+      if (userPlans && userPlans.length === 1) {
+        // This is their first plan, send welcome email
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-onboarding`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            name: user.user_metadata?.full_name || user.email,
+            type: 'welcome'
+          })
+        })
+      }
+    } catch (emailError) {
+      // Don't fail the main request if email fails
+      console.error('Email sending error:', emailError)
     }
 
     return NextResponse.json({

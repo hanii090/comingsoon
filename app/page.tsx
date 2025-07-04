@@ -93,25 +93,23 @@ export default function HomePage() {
                   pitch decks, and market research in minutes, not months.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+                {/* Single Focused CTA */}
+                <div className="pt-8">
                   <Link href="/dashboard">
                     <Button
                       size="lg"
-                      className="w-full sm:w-auto text-lg px-8 py-4 h-14"
+                      className="text-lg px-8 py-4 h-14 hover:scale-105 transition-transform"
                     >
-                      Start Building Now
+                      Start Building Now - Free
                     </Button>
                   </Link>
                   
-                  <Link href="/pricing">
-                    <Button
-                      variant="glass"
-                      size="lg"
-                      className="w-full sm:w-auto text-lg px-8 py-4 h-14"
-                    >
-                      View Pricing
-                    </Button>
-                  </Link>
+                  <p className="text-sm text-textSecondary mt-4">
+                    Free account • No credit card required • 
+                    <Link href="/pricing" className="text-primary-purple hover:text-primary-magenta transition-colors ml-1">
+                      View pricing
+                    </Link>
+                  </p>
                 </div>
               </motion.div>
 
@@ -260,18 +258,18 @@ export default function HomePage() {
               <p className="text-xl text-textSecondary mb-8 max-w-2xl mx-auto">
                 Join thousands of founders who have turned their ideas into successful startups with Foundify.
               </p>
-                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Link href="/dashboard">
-                   <Button size="lg" className="text-lg px-8 py-4 h-14">
-                     Start Building Now
-                   </Button>
-                 </Link>
-                 <Link href="/pricing">
-                   <Button variant="glass" size="lg" className="text-lg px-8 py-4 h-14">
-                     View Pricing Plans
-                   </Button>
-                 </Link>
-               </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/dashboard">
+                  <Button size="lg" className="text-lg px-8 py-4 h-14">
+                    Start Building Now
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button variant="glass" size="lg" className="text-lg px-8 py-4 h-14">
+                    View Pricing Plans
+                  </Button>
+                </Link>
+              </div>
             </motion.div>
           </div>
         </section>
