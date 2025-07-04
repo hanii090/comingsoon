@@ -1,10 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
+import { 
+  Users, 
+  Crown, 
+  FileText, 
+  TrendingUp,
+  Loader2,
+  Shield
+} from 'lucide-react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,7 +27,7 @@ import {
   ArcElement,
 } from 'chart.js'
 import { Bar, Doughnut } from 'react-chartjs-2'
-import { Users, Crown, FileText, Zap, ArrowLeft, TrendingUp } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 ChartJS.register(
   CategoryScale,
@@ -29,329 +40,344 @@ ChartJS.register(
 )
 
 interface AnalyticsData {
-  total_users: number
-  pro_users: number
-  total_plans: number
-  total_brands: number
-  total_pitch_decks: number
-  total_referrals: number
-  users_this_month: number
-  plans_this_month: number
-  most_active_users: {
+  totalUsers: number
+  proUsers: number
+  totalPlans: number
+  plansThisMonth: number
+  mostActiveUsers: Array<{
+    id: string
     email: string
+    full_name: string
     plan_count: number
-    brand_count: number
-  }[]
+  }>
 }
 
 export default function AdminAnalyticsPage() {
+  const { user, profile, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const router = useRouter()
-  const supabase = createClientComponentClient()
+
+  // Check admin access
+  const isAdmin = user?.email === 'admin@foundify.app'
 
   useEffect(() => {
-    checkAdminAccess()
-  }, [])
-
-  const checkAdminAccess = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+    if (!authLoading) {
       if (!user) {
         router.push('/login')
         return
       }
-
-      // Check if user is admin
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', user.id)
-        .single()
-
-      if (profile?.email !== 'admin@foundify.app') {
+      
+      if (!isAdmin) {
+        toast.error('Access denied. Admin privileges required.')
         router.push('/dashboard')
         return
       }
 
-      setIsAdmin(true)
-      await fetchAnalyticsData()
-    } catch (error) {
-      console.error('Error checking admin access:', error)
-      router.push('/dashboard')
+      fetchAnalyticsData()
     }
-  }
+  }, [user, authLoading, isAdmin, router])
 
   const fetchAnalyticsData = async () => {
     try {
+      // Fetch analytics using Supabase function
       const { data, error } = await supabase.rpc('get_analytics_data')
       
-      if (error) throw error
-      
-      setAnalyticsData(data)
+      if (error) {
+        console.error('Analytics fetch error:', error)
+        // Fallback to manual queries if RPC fails
+        await fetchManualAnalytics()
+      } else {
+        setAnalyticsData(data)
+      }
     } catch (error) {
       console.error('Error fetching analytics:', error)
+      await fetchManualAnalytics()
     } finally {
       setLoading(false)
     }
   }
 
-  if (!isAdmin || loading) {
+  const fetchManualAnalytics = async () => {
+    try {
+      // Get total users
+      const { count: totalUsers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+
+      // Get Pro users
+      const { count: proUsers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_pro', true)
+
+      // Get total plans
+      const { count: totalPlans } = await supabase
+        .from('plans')
+        .select('*', { count: 'exact', head: true })
+
+      // Get plans this month
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      const { count: plansThisMonth } = await supabase
+        .from('plans')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', startOfMonth.toISOString())
+
+      // Get most active users
+      const { data: mostActiveUsers, error: activeUsersError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          email,
+          full_name,
+          plans!inner(id)
+        `)
+        .limit(5)
+
+      if (activeUsersError) {
+        console.error('Error fetching active users:', activeUsersError)
+      }
+
+      const processedActiveUsers = mostActiveUsers?.map(user => ({
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name || 'N/A',
+        plan_count: user.plans?.length || 0
+      })).sort((a, b) => b.plan_count - a.plan_count) || []
+
+      setAnalyticsData({
+        totalUsers: totalUsers || 0,
+        proUsers: proUsers || 0,
+        totalPlans: totalPlans || 0,
+        plansThisMonth: plansThisMonth || 0,
+        mostActiveUsers: processedActiveUsers
+      })
+    } catch (error) {
+      console.error('Error in manual analytics fetch:', error)
+      toast.error('Failed to load analytics data')
+    }
+  }
+
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="glass rounded-2xl p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-purple mx-auto"></div>
-          <p className="text-white mt-4 text-center">Loading...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
+          <p className="text-textSecondary">Loading analytics...</p>
         </div>
       </div>
     )
   }
 
-  if (!analyticsData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="glass rounded-2xl p-8">
-          <p className="text-white text-center">Failed to load analytics data</p>
-        </div>
-      </div>
-    )
+  if (!isAdmin) {
+    return null
   }
 
-  // Chart data
-  const userGrowthData = {
-    labels: ['Total Users', 'Pro Users', 'Free Users'],
+  const userDistributionData = {
+    labels: ['Free Users', 'Pro Users'],
     datasets: [
       {
-        label: 'Users',
         data: [
-          analyticsData.total_users,
-          analyticsData.pro_users,
-          analyticsData.total_users - analyticsData.pro_users
+          (analyticsData?.totalUsers || 0) - (analyticsData?.proUsers || 0),
+          analyticsData?.proUsers || 0
         ],
         backgroundColor: [
-          'rgba(139, 92, 246, 0.8)',
+          'rgba(139, 92, 246, 0.3)',
           'rgba(236, 72, 153, 0.8)',
-          'rgba(59, 130, 246, 0.8)'
         ],
         borderColor: [
           'rgba(139, 92, 246, 1)',
           'rgba(236, 72, 153, 1)',
-          'rgba(59, 130, 246, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  }
-
-  const contentData = {
-    labels: ['Business Plans', 'Brand Kits', 'Pitch Decks'],
-    datasets: [
-      {
-        data: [
-          analyticsData.total_plans,
-          analyticsData.total_brands,
-          analyticsData.total_pitch_decks
-        ],
-        backgroundColor: [
-          'rgba(139, 92, 246, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(16, 185, 129, 0.8)'
-        ],
-        borderColor: [
-          'rgba(139, 92, 246, 1)',
-          'rgba(236, 72, 153, 1)',
-          'rgba(16, 185, 129, 1)'
         ],
         borderWidth: 2,
       },
     ],
   }
 
-  const stats = [
-    {
-      title: 'Total Users',
-      value: analyticsData.total_users.toLocaleString(),
-      icon: Users,
-      change: `+${analyticsData.users_this_month} this month`,
-      color: 'text-blue-400'
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          color: 'rgb(156, 163, 175)'
+        }
+      },
     },
-    {
-      title: 'Pro Users',
-      value: analyticsData.pro_users.toLocaleString(),
-      icon: Crown,
-      change: `${((analyticsData.pro_users / analyticsData.total_users) * 100).toFixed(1)}% conversion`,
-      color: 'text-yellow-400'
-    },
-    {
-      title: 'Business Plans',
-      value: analyticsData.total_plans.toLocaleString(),
-      icon: FileText,
-      change: `+${analyticsData.plans_this_month} this month`,
-      color: 'text-green-400'
-    },
-    {
-      title: 'Referrals',
-      value: analyticsData.total_referrals.toLocaleString(),
-      icon: Zap,
-      change: 'Word-of-mouth growth',
-      color: 'text-purple-400'
+    scales: {
+      y: {
+        ticks: {
+          color: 'rgb(156, 163, 175)'
+        },
+        grid: {
+          color: 'rgba(139, 92, 246, 0.1)'
+        }
+      },
+      x: {
+        ticks: {
+          color: 'rgb(156, 163, 175)'
+        },
+        grid: {
+          color: 'rgba(139, 92, 246, 0.1)'
+        }
+      }
     }
-  ]
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Button
-              variant="glass"
-              onClick={() => router.push('/dashboard')}
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            <h1 className="text-4xl font-bold text-white">Admin Analytics</h1>
-            <p className="text-gray-300 mt-2">Real-time insights into Foundify usage and growth</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Shield className="w-8 h-8 text-primary-purple" />
+            <h1 className="text-3xl md:text-4xl font-bold">
+              Admin <span className="gradient-text">Analytics</span>
+            </h1>
           </div>
-          <div className="glass rounded-lg p-4">
-            <TrendingUp className="w-8 h-8 text-primary-purple" />
-          </div>
-        </div>
+          <p className="text-textSecondary">
+            Real-time insights into Foundify&apos;s growth and user engagement.
+          </p>
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <Card key={index} variant="glass" className="hover:glow-purple transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
+          {[
+            {
+              title: 'Total Users',
+              value: analyticsData?.totalUsers || 0,
+              icon: Users,
+              color: 'text-blue-500',
+              bgColor: 'bg-blue-500/10'
+            },
+            {
+              title: 'Pro Users',
+              value: analyticsData?.proUsers || 0,
+              icon: Crown,
+              color: 'text-primary-purple',
+              bgColor: 'bg-primary-purple/10'
+            },
+            {
+              title: 'Total Plans',
+              value: analyticsData?.totalPlans || 0,
+              icon: FileText,
+              color: 'text-green-500',
+              bgColor: 'bg-green-500/10'
+            },
+            {
+              title: 'Plans This Month',
+              value: analyticsData?.plansThisMonth || 0,
+              icon: TrendingUp,
+              color: 'text-orange-500',
+              bgColor: 'bg-orange-500/10'
+            }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+            >
+              <Card variant="glass">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-textSecondary text-sm font-medium">
+                        {stat.title}
+                      </p>
+                      <p className="text-3xl font-bold text-text">
+                        {stat.value.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            )
-          })}
+            </motion.div>
+          ))}
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card variant="glass" className="p-6">
-            <CardHeader>
-              <CardTitle className="text-white">User Distribution</CardTitle>
-              <CardDescription className="text-gray-300">
-                Breakdown of user types
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <Bar
-                  data={userGrowthData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        labels: {
-                          color: 'white'
-                        }
-                      }
-                    },
-                    scales: {
-                      x: {
-                        ticks: {
-                          color: 'white'
-                        },
-                        grid: {
-                          color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                      },
-                      y: {
-                        ticks: {
-                          color: 'white'
-                        },
-                        grid: {
-                          color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                      }
-                    }
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="glass" className="p-6">
-            <CardHeader>
-              <CardTitle className="text-white">Content Created</CardTitle>
-              <CardDescription className="text-gray-300">
-                Distribution of content types
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <Doughnut
-                  data={contentData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
-                        labels: {
-                          color: 'white',
-                          padding: 20
-                        }
-                      }
-                    }
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Most Active Users */}
-        <Card variant="glass" className="p-6">
-          <CardHeader>
-            <CardTitle className="text-white">Most Active Users</CardTitle>
-            <CardDescription className="text-gray-300">
-              Users with the most content created
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {analyticsData.most_active_users?.slice(0, 10).map((user, index) => (
-                <div key={index} className="flex items-center justify-between p-4 glass-card rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold">
-                      {index + 1}
-                    </div>
-                    <span className="text-white font-medium">{user.email}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white text-sm">
-                      {user.plan_count} plans, {user.brand_count} brands
-                    </div>
-                    <div className="text-gray-400 text-xs">
-                      Total: {user.plan_count + user.brand_count} items
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* User Distribution Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card variant="glass">
+              <CardHeader>
+                <CardTitle>User Distribution</CardTitle>
+                <CardDescription>
+                  Free vs Pro user breakdown
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center">
+                  <Doughnut data={userDistributionData} options={chartOptions} />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Most Active Users */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <Card variant="glass">
+              <CardHeader>
+                <CardTitle>Most Active Users</CardTitle>
+                <CardDescription>
+                  Users with the most business plans created
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analyticsData?.mostActiveUsers?.map((user, index) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 rounded-xl bg-card/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="font-medium text-text">
+                            {user.full_name || 'Anonymous'}
+                          </p>
+                          <p className="text-sm text-textSecondary">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary-purple">
+                          {user.plan_count}
+                        </p>
+                        <p className="text-xs text-textSecondary">plans</p>
+                      </div>
+                    </div>
+                  )) || (
+                    <div className="text-center py-8 text-textSecondary">
+                      No user data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

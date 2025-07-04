@@ -4,13 +4,16 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-interface HeaderProps {
-  user?: any
-  onSignOut?: () => void
-}
+import { useAuth } from '@/lib/hooks/useAuth'
 
-export function Header({ user, onSignOut }: HeaderProps) {
+export function Header() {
   const router = useRouter()
+  const { user, profile, signOut, isAuthenticated } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
+  }
 
   return (
     <header className="border-b border-primary-purple/20 bg-background/80 backdrop-blur-lg sticky top-0 z-50">
@@ -38,7 +41,13 @@ export function Header({ user, onSignOut }: HeaderProps) {
             >
               Pricing
             </Link>
-            {user && (
+            <Link 
+              href="/blog" 
+              className="text-textSecondary hover:text-text transition-colors"
+            >
+              Blog
+            </Link>
+            {isAuthenticated && (
               <Link 
                 href="/dashboard" 
                 className="text-textSecondary hover:text-text transition-colors"
@@ -50,18 +59,22 @@ export function Header({ user, onSignOut }: HeaderProps) {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
-            {user ? (
+            {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-textSecondary hidden sm:block">
-                  {user.email}
-                </span>
+                <div className="hidden sm:flex items-center space-x-2">
+                  <span className="text-sm text-textSecondary">
+                    {profile?.full_name || user?.email}
+                  </span>
+                  {profile?.is_pro && (
+                    <span className="text-xs bg-gradient-primary text-white px-2 py-1 rounded-full">
+                      Pro
+                    </span>
+                  )}
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    onSignOut?.()
-                    router.push('/')
-                  }}
+                  onClick={handleSignOut}
                 >
                   Sign Out
                 </Button>

@@ -9,28 +9,34 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      users: {
+      profiles: {
         Row: {
           id: string
           email: string
-          isPro: boolean
-          stripe_id: string | null
+          full_name: string | null
+          avatar_url: string | null
+          is_pro: boolean
+          stripe_customer_id: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id: string
           email: string
-          isPro?: boolean
-          stripe_id?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          is_pro?: boolean
+          stripe_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           email?: string
-          isPro?: boolean
-          stripe_id?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          is_pro?: boolean
+          stripe_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -40,7 +46,8 @@ export interface Database {
           id: string
           user_id: string
           title: string
-          sections: Json
+          content: any
+          is_public: boolean
           created_at: string
           updated_at: string
         }
@@ -48,7 +55,8 @@ export interface Database {
           id?: string
           user_id: string
           title: string
-          sections: Json
+          content: any
+          is_public?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -56,7 +64,8 @@ export interface Database {
           id?: string
           user_id?: string
           title?: string
-          sections?: Json
+          content?: any
+          is_public?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -65,24 +74,24 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          business_name: string
-          data: Json
+          name: string
+          content: any
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          business_name: string
-          data: Json
+          name: string
+          content: any
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          business_name?: string
-          data?: Json
+          name?: string
+          content?: any
           created_at?: string
           updated_at?: string
         }
@@ -92,7 +101,7 @@ export interface Database {
           id: string
           user_id: string
           title: string
-          data: Json
+          content: any
           created_at: string
           updated_at: string
         }
@@ -100,7 +109,7 @@ export interface Database {
           id?: string
           user_id: string
           title: string
-          data: Json
+          content: any
           created_at?: string
           updated_at?: string
         }
@@ -108,7 +117,7 @@ export interface Database {
           id?: string
           user_id?: string
           title?: string
-          data?: Json
+          content?: any
           created_at?: string
           updated_at?: string
         }
@@ -117,24 +126,111 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          topic: string
-          data: Json
+          type: string
+          content: any
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
-          topic: string
-          data: Json
+          type: string
+          content: any
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
-          topic?: string
-          data?: Json
+          type?: string
+          content?: any
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      competitors: {
+        Row: {
+          id: string
+          user_id: string
+          business_name: string
+          analysis: any
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          business_name: string
+          analysis: any
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          business_name?: string
+          analysis?: any
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      referrals: {
+        Row: {
+          id: string
+          user_id: string
+          referred_user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          referred_user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          referred_user_id?: string
+          created_at?: string
+        }
+      }
+      blog_posts: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          description: string | null
+          content: string
+          featured_image: string | null
+          author: string
+          tags: string[]
+          published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          description?: string | null
+          content: string
+          featured_image?: string | null
+          author: string
+          tags?: string[]
+          published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          description?: string | null
+          content?: string
+          featured_image?: string | null
+          author?: string
+          tags?: string[]
+          published?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -144,7 +240,10 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_analytics_data: {
+        Args: {}
+        Returns: any
+      }
     }
     Enums: {
       [_ in never]: never

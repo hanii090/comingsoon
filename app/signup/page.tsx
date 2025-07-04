@@ -1,17 +1,20 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, User } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, User, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/hooks/useAuth'
 import toast from 'react-hot-toast'
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,6 +24,16 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  // Get referral code from URL
+  const referralCode = searchParams.get('ref')
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -42,11 +55,6 @@ export default function SignUpPage() {
       return
     }
 
-    if (!supabase) {
-      toast.error('Authentication service is not available')
-      return
-    }
-
     setIsLoading(true)
 
     try {
@@ -55,15 +63,31 @@ export default function SignUpPage() {
         password: formData.password,
         options: {
           data: {
-            name: formData.name,
+            full_name: formData.name,
           },
         },
       })
 
       if (error) {
         toast.error(error.message)
-      } else {
-        toast.success('Account created! Check your email to verify your account.')
+      } else if (data.user) {
+        // Track referral if present
+        if (referralCode && data.user.id) {
+          try {
+            await fetch('/api/track-referral', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                referralCode,
+                newUserId: data.user.id
+              })
+            })
+          } catch (referralError) {
+            console.error('Failed to track referral:', referralError)
+          }
+        }
+
+        toast.success('Account created! Welcome to Foundify!')
         router.push('/dashboard')
       }
     } catch (error) {
@@ -74,16 +98,15 @@ export default function SignUpPage() {
   }
 
   const handleGoogleSignUp = async () => {
-    if (!supabase) {
-      toast.error('Authentication service is not available')
-      return
-    }
-
     try {
+      const redirectUrl = referralCode 
+        ? `${window.location.origin}/dashboard?ref=${referralCode}`
+        : `${window.location.origin}/dashboard`
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: redirectUrl,
         },
       })
 
@@ -131,6 +154,11 @@ export default function SignUpPage() {
             <CardTitle className="text-2xl font-bold">Create Your Account</CardTitle>
             <CardDescription>
               Join thousands of founders building the next big thing
+              {referralCode && (
+                <span className="block text-primary-purple mt-1">
+                  You&apos;ve been invited by a friend!
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
 
@@ -305,5 +333,20 @@ export default function SignUpPage() {
         </Card>
       </motion.div>
     </div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
+          <p className="text-textSecondary">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignUpForm />
+    </Suspense>
   )
 }

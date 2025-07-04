@@ -1,11 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 import { 
   Brain, 
   FileText, 
@@ -14,54 +17,76 @@ import {
   Sparkles,
   Calendar,
   Download,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
-// Mock user data - in real app this would come from Supabase
-const mockUser = {
-  id: '1',
-  email: 'user@example.com',
-  isPro: false,
-  plans: [
-    {
-      id: '1',
-      title: 'AI-Powered SaaS Platform',
-      created_at: '2024-01-15T10:00:00Z',
-      sections: {
-        executive_summary: 'A revolutionary AI platform...',
-        market_analysis: 'The market for AI tools...',
-        business_model: 'Subscription-based SaaS...'
-      }
-    },
-    {
-      id: '2',
-      title: 'E-commerce Marketplace',
-      created_at: '2024-01-10T14:30:00Z',
-      sections: {
-        executive_summary: 'Connecting buyers and sellers...',
-        market_analysis: 'The e-commerce market...',
-        business_model: 'Commission-based model...'
-      }
-    }
-  ]
+interface BusinessPlan {
+  id: string
+  title: string
+  content: any
+  created_at: string
+  updated_at: string
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<typeof mockUser | null>(mockUser)
+  const { user, profile, loading: authLoading, signOut, isAuthenticated, isPro } = useAuth()
+  const router = useRouter()
+  const [plans, setPlans] = useState<BusinessPlan[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [businessIdea, setBusinessIdea] = useState('')
   const [showIdeaForm, setShowIdeaForm] = useState(false)
+  const [plansLoading, setPlansLoading] = useState(true)
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login')
+      return
+    }
+
+    if (user) {
+      fetchPlans()
+    }
+  }, [user, authLoading, isAuthenticated, router])
+
+  const fetchPlans = async () => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setPlans(data || [])
+    } catch (error) {
+      console.error('Error fetching plans:', error)
+      toast.error('Failed to load your business plans')
+    } finally {
+      setPlansLoading(false)
+    }
+  }
 
   const handleGeneratePlan = async () => {
     if (!businessIdea.trim() || !user) {
+      toast.error('Please describe your business idea')
+      return
+    }
+
+    // Check plan limits for free users
+    if (!isPro && plans.length >= 1) {
+      toast.error('Free users can create 1 plan per month. Upgrade to Pro for unlimited plans!')
+      router.push('/pricing')
       return
     }
 
     setIsGenerating(true)
     
     try {
-      // Call the AI generation API
       const response = await fetch('/api/generate-plan', {
         method: 'POST',
         headers: {
@@ -73,18 +98,19 @@ export default function DashboardPage() {
         }),
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        const data = await response.json()
-        // Refresh the plans list
-        // In real app, this would refetch from Supabase
-        console.log('Generated plan:', data)
+        toast.success('Business plan generated successfully!')
         setBusinessIdea('')
         setShowIdeaForm(false)
+        fetchPlans() // Refresh the plans list
       } else {
-        console.error('Failed to generate plan')
+        toast.error(data.error || 'Failed to generate plan')
       }
     } catch (error) {
       console.error('Error generating plan:', error)
+      toast.error('An unexpected error occurred')
     } finally {
       setIsGenerating(false)
     }
@@ -98,24 +124,26 @@ export default function DashboardPage() {
     })
   }
 
-  // Redirect to login if no user
-  if (!user) {
+  // Show loading state while checking authentication
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
-          <p className="text-textSecondary mb-6">You need to be signed in to access the dashboard.</p>
-          <Link href="/login">
-            <Button>Sign In</Button>
-          </Link>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
+          <p className="text-textSecondary">Loading...</p>
         </div>
       </div>
     )
   }
 
+  // This should not render if useEffect redirects unauthenticated users
+  if (!isAuthenticated) {
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Header user={user} onSignOut={() => setUser(null)} />
+      <Header />
       
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
@@ -126,7 +154,7 @@ export default function DashboardPage() {
           className="mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Welcome back, <span className="gradient-text">Founder</span>!
+            Welcome back, <span className="gradient-text">{profile?.full_name || 'Founder'}</span>!
           </h1>
           <p className="text-textSecondary">
             Ready to build something amazing? Let&apos;s turn your ideas into reality.
@@ -134,7 +162,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Upgrade Banner - Show only if not Pro */}
-        {!user.isPro && (
+        {!isPro && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -194,14 +222,28 @@ export default function DashboardPage() {
                     <p className="text-textSecondary mb-6">
                       Tell us about your business idea and we&apos;ll generate a complete plan
                     </p>
-                    <Button 
-                      size="lg" 
-                      onClick={() => setShowIdeaForm(true)}
-                      className="gap-2"
-                    >
-                      <Plus className="w-5 h-5" />
-                      Create New Plan
-                    </Button>
+                    {!isPro && plans.length >= 1 ? (
+                      <div className="space-y-4">
+                        <p className="text-yellow-400 text-sm">
+                          You&apos;ve used your free plan. Upgrade to Pro for unlimited plans!
+                        </p>
+                        <Link href="/pricing">
+                          <Button size="lg" className="gap-2">
+                            <Crown className="w-5 h-5" />
+                            Upgrade to Pro
+                          </Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <Button 
+                        size="lg" 
+                        onClick={() => setShowIdeaForm(true)}
+                        className="gap-2"
+                      >
+                        <Plus className="w-5 h-5" />
+                        Create New Plan
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -256,13 +298,18 @@ export default function DashboardPage() {
                     <CardTitle className="text-xl">My Business Plans</CardTitle>
                   </div>
                   <span className="text-sm text-textSecondary">
-                    {user.plans.length} plan{user.plans.length !== 1 ? 's' : ''}
+                    {plans.length} plan{plans.length !== 1 ? 's' : ''}
                   </span>
                 </div>
               </CardHeader>
               
               <CardContent>
-                {user.plans.length === 0 ? (
+                {plansLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
+                    <p className="text-textSecondary">Loading your plans...</p>
+                  </div>
+                ) : plans.length === 0 ? (
                   <div className="text-center py-8">
                     <FileText className="w-12 h-12 text-textSecondary mx-auto mb-4" />
                     <p className="text-textSecondary">
@@ -271,7 +318,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {user.plans.map((plan, index) => (
+                    {plans.map((plan, index) => (
                       <motion.div
                         key={plan.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -293,13 +340,15 @@ export default function DashboardPage() {
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical'
                               }}>
-                                {plan.sections.executive_summary}
+                                {plan.content?.executive_summary || 'Business plan generated by AI'}
                               </p>
                             </div>
                             <div className="flex gap-2 ml-4">
-                              <Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Download className="w-4 h-4" />
-                              </Button>
+                              {isPro && (
+                                <Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Download className="w-4 h-4" />
+                                </Button>
+                              )}
                               <Link href={`/plan/${plan.id}`}>
                                 <Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
                                   <ExternalLink className="w-4 h-4" />
