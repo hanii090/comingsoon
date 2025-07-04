@@ -155,7 +155,7 @@ export default function SignupPage() {
               </div>
               <h2 className="text-2xl font-bold mb-2">Check your email!</h2>
               <p className="text-textSecondary mb-6">
-                We've sent you a confirmation link at <span className="text-white font-medium">{formData.email}</span>
+                We&apos;ve sent you a confirmation link at <span className="text-white font-medium">{formData.email}</span>
               </p>
               <p className="text-sm text-textSecondary mb-6">
                 Click the link in the email to verify your account and start building your business plan.

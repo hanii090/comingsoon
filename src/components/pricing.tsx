@@ -79,7 +79,7 @@ export function Pricing() {
             <span className="gradient-text">Pricing</span>
           </h2>
           <p className="text-lg text-textSecondary max-w-2xl mx-auto">
-            Start free and upgrade when you're ready to unlock the full potential of AI-powered business planning.
+            Start free and upgrade when you&apos;re ready to unlock the full potential of AI-powered business planning.
           </p>
         </motion.div>
 

@@ -102,7 +102,7 @@ export default function DashboardPage() {
     }
 
     fetchData()
-  }, [])
+  }, [supabase])
 
   const quickActions = [
     {

@@ -88,19 +88,67 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="flex items-center justify-center gap-8 pt-8 text-sm text-textSecondary"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-8"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span>1000+ Plans Generated</span>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 text-sm text-textSecondary">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span>1000+ Plans Generated</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-textSecondary">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span>$10M+ Funding Raised</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-textSecondary">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                <span>500+ Founders</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span>$10M+ Funding Raised</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-              <span>500+ Founders</span>
+          </motion.div>
+
+          {/* Demo Preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="mt-16 max-w-4xl mx-auto"
+          >
+            <div className="glass rounded-2xl p-1">
+              <div className="bg-dark/50 rounded-xl p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="flex-1 text-center text-textSecondary text-sm">
+                    foundify.com/dashboard
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">🤖</span>
+                    </div>
+                    <div className="flex-1 glass rounded-lg p-3">
+                      <p className="text-sm text-white">Generate my business plan for a sustainable food delivery startup targeting millennials...</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs">✨</span>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="glass rounded-lg p-3">
+                        <p className="text-sm text-white font-medium">Executive Summary</p>
+                        <p className="text-xs text-textSecondary mt-1">EcoEats revolutionizes food delivery by connecting eco-conscious millennials...</p>
+                      </div>
+                      <div className="glass rounded-lg p-3">
+                        <p className="text-sm text-white font-medium">Market Analysis</p>
+                        <p className="text-xs text-textSecondary mt-1">The sustainable food delivery market is projected to reach $18.6B by 2027...</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </motion.div>

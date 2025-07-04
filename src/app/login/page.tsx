@@ -234,15 +234,15 @@ export default function LoginPage() {
               >
                 Forgot your password?
               </Link>
-              <p className="text-sm text-textSecondary">
-                Don't have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-primary hover:text-accent transition-colors font-medium"
-                >
-                  Sign up
-                </Link>
-              </p>
+                             <p className="text-sm text-textSecondary">
+                 Don&apos;t have an account?{" "}
+                 <Link
+                   href="/signup"
+                   className="text-primary hover:text-accent transition-colors font-medium"
+                 >
+                   Sign up
+                 </Link>
+               </p>
             </div>
           </CardContent>
         </Card>
