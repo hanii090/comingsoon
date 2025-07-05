@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -61,24 +61,7 @@ export default function AdminAnalyticsPage() {
   // Check admin access
   const isAdmin = user?.email === 'admin@foundify.app'
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login')
-        return
-      }
-      
-      if (!isAdmin) {
-        toast.error('Access denied. Admin privileges required.')
-        router.push('/dashboard')
-        return
-      }
-
-      fetchAnalyticsData()
-    }
-  }, [user, authLoading, isAdmin, router])
-
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       // Fetch analytics using Supabase function
       const { data, error } = await supabase.rpc('get_analytics_data')
@@ -96,9 +79,9 @@ export default function AdminAnalyticsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchManualAnalytics = async () => {
+  const fetchManualAnalytics = useCallback(async () => {
     try {
       // Get total users
       const { count: totalUsers } = await supabase
@@ -156,14 +139,31 @@ export default function AdminAnalyticsPage() {
       console.error('Error in manual analytics fetch:', error)
       toast.error('Failed to load analytics data')
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      
+      if (!isAdmin) {
+        toast.error('Access denied. Admin privileges required.')
+        router.push('/dashboard')
+        return
+      }
+
+      fetchAnalyticsData()
+    }
+  }, [user, authLoading, isAdmin, router, fetchAnalyticsData])
 
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
-          <p className="text-textSecondary">Loading analytics...</p>
+          <p className="text-gray-400">Loading analytics...</p>
         </div>
       </div>
     )
@@ -242,7 +242,7 @@ export default function AdminAnalyticsPage() {
               Admin <span className="gradient-text">Analytics</span>
             </h1>
           </div>
-          <p className="text-textSecondary">
+          <p className="text-gray-400">
             Real-time insights into Foundify&apos;s growth and user engagement.
           </p>
         </motion.div>
@@ -289,10 +289,10 @@ export default function AdminAnalyticsPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-textSecondary text-sm font-medium">
+                      <p className="text-gray-400 text-sm font-medium">
                         {stat.title}
                       </p>
-                      <p className="text-3xl font-bold text-text">
+                      <p className="text-3xl font-bold text-white">
                         {stat.value.toLocaleString()}
                       </p>
                     </div>
@@ -350,10 +350,10 @@ export default function AdminAnalyticsPage() {
                           {index + 1}
                         </div>
                         <div>
-                          <p className="font-medium text-text">
+                          <p className="font-medium text-white">
                             {user.full_name || 'Anonymous'}
                           </p>
-                          <p className="text-sm text-textSecondary">
+                          <p className="text-sm text-gray-400">
                             {user.email}
                           </p>
                         </div>
@@ -362,11 +362,11 @@ export default function AdminAnalyticsPage() {
                         <p className="font-bold text-primary-purple">
                           {user.plan_count}
                         </p>
-                        <p className="text-xs text-textSecondary">plans</p>
+                        <p className="text-xs text-gray-400">plans</p>
                       </div>
                     </div>
                   )) || (
-                    <div className="text-center py-8 text-textSecondary">
+                    <div className="text-center py-8 text-gray-400">
                       No user data available
                     </div>
                   )}

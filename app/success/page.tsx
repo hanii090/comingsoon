@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, Suspense } from 'react'
+import React, { useEffect, useState, Suspense, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -22,13 +22,7 @@ function SuccessContent() {
 
   const sessionId = searchParams.get('session_id')
 
-  useEffect(() => {
-    if (sessionId && user && !paymentVerified) {
-      verifyPayment()
-    }
-  }, [sessionId, user, paymentVerified])
-
-  const verifyPayment = async () => {
+  const verifyPayment = useCallback(async () => {
     if (!sessionId || !user) return
 
     setIsUpdating(true)
@@ -69,7 +63,13 @@ function SuccessContent() {
     } finally {
       setIsUpdating(false)
     }
-  }
+  }, [sessionId, user, paymentVerified])
+
+  useEffect(() => {
+    if (sessionId && user && !paymentVerified) {
+      verifyPayment()
+    }
+  }, [sessionId, user, paymentVerified, verifyPayment])
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +88,7 @@ function SuccessContent() {
               Welcome to{' '}
               <span className="gradient-text">Foundify Pro</span>!
             </h1>
-            <p className="text-xl text-textSecondary">
+            <p className="text-xl text-gray-400">
               Your payment was successful. You now have access to all Pro features!
             </p>
           </div>
@@ -133,7 +133,7 @@ function SuccessContent() {
               </Button>
             </Link>
             
-            <div className="text-sm text-textSecondary">
+            <div className="text-sm text-gray-400">
               Questions? Contact us at{' '}
               <a 
                 href="mailto:support@foundify.app" 
@@ -177,7 +177,7 @@ function SuccessContent() {
               <Card key={index} variant="glass" className="p-6 text-center">
                 <div className="text-4xl mb-4">{tip.icon}</div>
                 <h3 className="font-semibold mb-2">{tip.title}</h3>
-                <p className="text-textSecondary text-sm">{tip.description}</p>
+                <p className="text-gray-400 text-sm">{tip.description}</p>
               </Card>
             ))}
           </div>
@@ -195,7 +195,7 @@ export default function SuccessPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-purple" />
-          <p className="text-textSecondary">Loading...</p>
+          <p className="text-gray-400">Loading...</p>
         </div>
       </div>
     }>

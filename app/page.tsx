@@ -2,9 +2,11 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Carousel, HorizontalCarousel } from '@/components/ui/carousel'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { 
@@ -14,7 +16,11 @@ import {
   Search, 
   Download, 
   Zap,
-  Star
+  Star,
+  CheckCircle,
+  Users,
+  TrendingUp,
+  Award
 } from 'lucide-react'
 
 export default function HomePage() {
@@ -58,9 +64,103 @@ export default function HomePage() {
   ]
 
   const testimonials = [
-    { rating: 5, text: 'Trusted by founders' },
-    { rating: 5, text: '500+ startups launched' },
-    { rating: 5, text: '$10M+ raised' }
+    {
+      id: '1',
+      content: (
+        <Card variant="glass" className="p-6 max-w-md mx-auto">
+          <div className="flex items-start space-x-4">
+            <Image 
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" 
+              alt="Alex Chen" 
+              width={48}
+              height={48}
+              className="rounded-full object-cover"
+            />
+            <div>
+              <p className="text-white mb-3">&ldquo;Foundify helped me create a professional business plan in just 30 minutes. The AI insights were incredibly detailed and actionable.&rdquo;</p>
+              <div>
+                <p className="font-semibold text-white">Alex Chen</p>
+                <p className="text-sm text-gray-400">Founder, TechFlow</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )
+    },
+    {
+      id: '2',
+      content: (
+        <Card variant="glass" className="p-6 max-w-md mx-auto">
+          <div className="flex items-start space-x-4">
+            <Image 
+              src="https://images.unsplash.com/photo-1494790108755-2616b332c1c9?w=50&h=50&fit=crop&crop=face" 
+              alt="Sarah Martinez" 
+              width={48}
+              height={48}
+              className="rounded-full object-cover"
+            />
+            <div>
+              <p className="text-white mb-3">&ldquo;The pitch deck generator saved me weeks of work. I used it to raise $2M in seed funding. Highly recommended for serious entrepreneurs.&rdquo;</p>
+              <div>
+                <p className="font-semibold text-white">Sarah Martinez</p>
+                <p className="text-sm text-gray-400">CEO, GreenTech Solutions</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )
+    },
+    {
+      id: '3',
+      content: (
+        <Card variant="glass" className="p-6 max-w-md mx-auto">
+          <div className="flex items-start space-x-4">
+            <Image 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" 
+              alt="Marcus Johnson" 
+              width={48}
+              height={48}
+              className="rounded-full object-cover"
+            />
+            <div>
+              <p className="text-white mb-3">&ldquo;As a first-time founder, Foundify gave me the confidence and structure I needed. The market research feature is pure gold.&rdquo;</p>
+              <div>
+                <p className="font-semibold text-white">Marcus Johnson</p>
+                <p className="text-sm text-gray-400">Founder, FinanceAI</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )
+    }
+  ]
+
+  const logoItems = [
+    <div key="techcrunch" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">TechCrunch</span>
+    </div>,
+    <div key="yc" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">Y Combinator</span>
+    </div>,
+    <div key="indiehackers" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">IndieHackers</span>
+    </div>,
+    <div key="producthunt" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">Product Hunt</span>
+    </div>,
+    <div key="angellist" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">AngelList</span>
+    </div>,
+    <div key="forbes" className="flex items-center justify-center h-16 w-32 bg-white/10 rounded-lg backdrop-blur-sm">
+      <span className="text-white font-bold text-lg">Forbes</span>
+    </div>
+  ]
+
+  const stats = [
+    { number: "500+", label: "Startups Launched", icon: Users },
+    { number: "$10M+", label: "Capital Raised", icon: TrendingUp },
+    { number: "98%", label: "Success Rate", icon: Award },
+    { number: "24hrs", label: "Average Time to Plan", icon: Zap }
   ]
 
   return (
@@ -88,7 +188,7 @@ export default function HomePage() {
                   {' '}Into Reality
                 </h1>
                 
-                <p className="text-xl md:text-2xl text-textSecondary max-w-3xl mx-auto">
+                <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
                   AI-powered business planning assistant that helps founders create comprehensive business plans, 
                   pitch decks, and market research in minutes, not months.
                 </p>
@@ -100,11 +200,11 @@ export default function HomePage() {
                       size="lg"
                       className="text-lg px-8 py-4 h-14 hover:scale-105 transition-transform"
                     >
-                      Start Building Now - Free
+                      Generate Your Business Plan - Free
                     </Button>
                   </Link>
                   
-                  <p className="text-sm text-textSecondary mt-4">
+                  <p className="text-sm text-gray-400 mt-4">
                     Free account • No credit card required • 
                     <Link href="/pricing" className="text-primary-purple hover:text-primary-magenta transition-colors ml-1">
                       View pricing
@@ -120,7 +220,11 @@ export default function HomePage() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-wrap justify-center gap-4 pt-12"
               >
-                {testimonials.map((item, index) => (
+                {[
+                  { rating: 5, text: 'Trusted by founders' },
+                  { rating: 5, text: '500+ startups launched' },
+                  { rating: 5, text: '$10M+ raised' }
+                ].map((item, index) => (
                   <div key={index} className="glass-card px-6 py-3 rounded-full">
                     <div className="flex items-center gap-2">
                       <div className="flex">
@@ -128,12 +232,61 @@ export default function HomePage() {
                           <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                         ))}
                       </div>
-                      <span className="text-sm text-textSecondary">{item.text}</span>
+                      <span className="text-sm text-gray-400">{item.text}</span>
                     </div>
                   </div>
                 ))}
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* As Featured In Section */}
+        <section className="py-16 bg-gradient-to-b from-transparent to-primary-purple/5">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-2xl font-bold mb-4 text-gray-400">As Featured In</h2>
+            </motion.div>
+            
+            <HorizontalCarousel 
+              items={logoItems} 
+              speed={25}
+              className="py-8"
+            />
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-8"
+            >
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="text-center"
+                >
+                  <stat.icon className="w-8 h-8 text-primary-purple mx-auto mb-3" />
+                  <div className="text-3xl font-bold text-white mb-1">{stat.number}</div>
+                  <div className="text-gray-400 text-sm">{stat.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </section>
 
@@ -151,7 +304,7 @@ export default function HomePage() {
                 Everything You Need to{' '}
                 <span className="gradient-text">Launch Your Startup</span>
               </h2>
-              <p className="text-xl text-textSecondary max-w-3xl mx-auto">
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
                 From initial idea to investor-ready presentation, Foundify provides all the tools 
                 and insights you need to build a successful startup.
               </p>
@@ -176,7 +329,7 @@ export default function HomePage() {
                         <CardTitle className="text-xl">{feature.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <CardDescription className="text-center text-base">
+                        <CardDescription className="text-center text-base text-gray-400">
                           {feature.description}
                         </CardDescription>
                       </CardContent>
@@ -188,8 +341,36 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* What Customers Say */}
+        <section className="py-20 bg-gradient-to-b from-transparent to-primary-purple/5">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                What <span className="gradient-text">Customers Say</span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                Join hundreds of founders who have successfully launched their startups with Foundify
+              </p>
+            </motion.div>
+
+            <Carousel 
+              items={testimonials}
+              autoPlay={true}
+              interval={5000}
+              showDots={true}
+              className="max-w-2xl mx-auto"
+            />
+          </div>
+        </section>
+
         {/* How It Works */}
-        <section className="py-20 lg:py-32 bg-gradient-to-b from-transparent to-primary-purple/5">
+        <section className="py-20 lg:py-32">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -209,17 +390,17 @@ export default function HomePage() {
                 {
                   step: '01',
                   title: 'Describe Your Idea',
-                  description: 'Tell our AI about your startup idea, target market, and vision.'
+                  description: 'Tell our AI about your startup idea, target market, and vision in just a few sentences.'
                 },
                 {
                   step: '02',
                   title: 'AI Generates Plan',
-                  description: 'Our advanced AI creates a comprehensive business plan, brand identity, and market research.'
+                  description: 'Our advanced AI creates a comprehensive business plan with market research and financial projections.'
                 },
                 {
                   step: '03',
                   title: 'Export & Launch',
-                  description: 'Download your investor-ready materials and start building your startup.'
+                  description: 'Download your investor-ready materials and start building your startup with confidence.'
                 }
               ].map((item, index) => (
                 <motion.div
@@ -234,14 +415,14 @@ export default function HomePage() {
                     {item.step}
                   </div>
                   <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
-                  <p className="text-textSecondary">{item.description}</p>
+                  <p className="text-gray-400">{item.description}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Final CTA Section */}
         <section className="py-20 lg:py-32">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -255,20 +436,31 @@ export default function HomePage() {
                 Ready to Build Your{' '}
                 <span className="gradient-text">Next Big Thing?</span>
               </h2>
-              <p className="text-xl text-textSecondary mb-8 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                 Join thousands of founders who have turned their ideas into successful startups with Foundify.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              
+              <div className="space-y-6">
                 <Link href="/dashboard">
-                  <Button size="lg" className="text-lg px-8 py-4 h-14">
-                    Start Building Now
+                  <Button size="lg" className="text-lg px-8 py-4 h-14 hover:scale-105 transition-transform">
+                    Start Building Now - Free
                   </Button>
                 </Link>
-                <Link href="/pricing">
-                  <Button variant="glass" size="lg" className="text-lg px-8 py-4 h-14">
-                    View Pricing Plans
-                  </Button>
-                </Link>
+                
+                <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-400 mr-2" />
+                    No credit card required
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-400 mr-2" />
+                    Cancel anytime
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-400 mr-2" />
+                    14-day money back guarantee
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
